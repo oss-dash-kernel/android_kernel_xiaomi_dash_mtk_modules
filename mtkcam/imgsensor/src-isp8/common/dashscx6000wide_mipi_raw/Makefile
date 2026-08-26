@@ -2,4 +2,4 @@
 # Copyright (C) 2020 MediaTek Inc.
 
 imgsensor_isp8-objs += \
-	$(subdrv-rpath)/dashsc532hswidemipiraw_Sensor.o
+	$(subdrv-rpath)/dashscx6000widemipiraw_Sensor.o

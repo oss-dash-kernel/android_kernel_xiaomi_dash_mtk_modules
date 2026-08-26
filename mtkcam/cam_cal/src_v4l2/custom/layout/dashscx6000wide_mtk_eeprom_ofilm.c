@@ -15,7 +15,7 @@
 #define pr_debug_if(cond, ...)      do { if ((cond)) pr_debug(__VA_ARGS__); } while (0)
 #define pr_debug_err(...)    pr_debug("error: " __VA_ARGS__)
 
-unsigned int dashsc532hswide_ofilm_do_pdaf(struct EEPROM_DRV_FD_DATA *pdata,
+unsigned int dashscx6000wide_ofilm_do_pdaf(struct EEPROM_DRV_FD_DATA *pdata,
 	unsigned int start_addr, unsigned int block_size, unsigned int *pGetSensorCalData);
 
 static struct STRUCT_CALIBRATION_LAYOUT_STRUCT cal_layout_table = {
@@ -25,19 +25,19 @@ static struct STRUCT_CALIBRATION_LAYOUT_STRUCT cal_layout_table = {
 		{0x00000001, 0x00000010, 0x0000000C, xiaomi_do_part_number},
 		{0x00000001, 0x0000078C, 0x0000074C, xiaomi_do_single_lsc},
 		{0x00000001, 0x00000754, 0x00000010, xiaomi_do_2a_gain},
-		{0x00000001, 0x00000EF1, 0x00000A28, dashsc532hswide_ofilm_do_pdaf},
+		{0x00000001, 0x00000EF1, 0x00000A28, dashscx6000wide_ofilm_do_pdaf},
 		{0x00000000, 0x00000000, 0x00000001, NULL},
 		{0x00000000, 0x00000000, 0x00003FFC, xiaomi_do_dump_all},
 		{0x00000000, 0x00000F80, 0x0000000A, NULL}
 	}
 };
 
-struct STRUCT_CAM_CAL_CONFIG_STRUCT dashsc532hswide_mtk_eeprom_ofilm = {
-	.name = "dashsc532hswide_mtk_eeprom_ofilm",
+struct STRUCT_CAM_CAL_CONFIG_STRUCT dashscx6000wide_mtk_eeprom_ofilm = {
+	.name = "dashscx6000wide_mtk_eeprom_ofilm",
 	.check_layout_function = layout_check,
 	.read_function = Common_read_region,
 	.layout = &cal_layout_table,
-	.sensor_id = DASHSC532HSWIDE_SENSOR_ID,
+	.sensor_id = DASHSCX6000WIDE_SENSOR_ID,
 	.i2c_write_id = 0xA2,
 	.max_size = 0x4000,
 	.enable_preload = 1,
@@ -46,7 +46,7 @@ struct STRUCT_CAM_CAL_CONFIG_STRUCT dashsc532hswide_mtk_eeprom_ofilm = {
 };
 
 
-unsigned int dashsc532hswide_ofilm_do_pdaf(struct EEPROM_DRV_FD_DATA *pdata,
+unsigned int dashscx6000wide_ofilm_do_pdaf(struct EEPROM_DRV_FD_DATA *pdata,
 	unsigned int start_addr, unsigned int block_size, unsigned int *pGetSensorCalData)
 {
 	struct STRUCT_CAM_CAL_DATA_STRUCT *pCamCalData =

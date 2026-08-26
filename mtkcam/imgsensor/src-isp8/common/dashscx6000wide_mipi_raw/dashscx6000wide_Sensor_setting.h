@@ -6,7 +6,7 @@
  *
  * Filename:
  * ---------
- *	 dashsc532hswide_Sensor_setting.h
+ *	 dashscx6000wide_Sensor_setting.h
  *
  * Project:
  * --------
@@ -16,11 +16,11 @@
  *
  ****************************************************************************/
 
-#ifndef _DASHSC532HSWIDE_SENSOR_SETTING_H
-#define _DASHSC532HSWIDE_SENSOR_SETTING_H
+#ifndef _DASHSCX6000WIDE_SENSOR_SETTING_H
+#define _DASHSCX6000WIDE_SENSOR_SETTING_H
 
 
-static u16 dashsc532hswide_init_setting[] = {
+static u16 dashscx6000wide_init_setting[] = {
     0x1c5a,0x99,
     0x1c5c,0x09,
     0x1c5e,0x11,
@@ -693,7 +693,7 @@ static u16 dashsc532hswide_init_setting[] = {
 };
 
 //mode 0 :V_2_RSS 4096x3072_binning_10bit_30fps_PD_DT_4096x768_Max_A_gain_64x
-static u16 dashsc532hswide_preview_setting[] = {
+static u16 dashscx6000wide_preview_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -1438,7 +1438,7 @@ static u16 dashsc532hswide_preview_setting[] = {
 };
 
 //mode 2 :V_8_RSS_crop 4096x2304_binning_crop_10bit_30fps_PDDT_4096x576_Max_A_gain_64x
-static u16 dashsc532hswide_normal_video_setting[] = {
+static u16 dashscx6000wide_normal_video_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -2183,7 +2183,7 @@ static u16 dashsc532hswide_normal_video_setting[] = {
 };
 
 //mode 3 :V_13_SUM_V2H2 1920x1080_binning_crop_10bit_240fps_no_PD_Max_A_gain_64x
-static u16 dashsc532hswide_hs_video_setting[] = {
+static u16 dashscx6000wide_hs_video_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -2928,7 +2928,7 @@ static u16 dashsc532hswide_hs_video_setting[] = {
 };
 
 //mode 5 :V_9_SUM_CROP 4096x2304_binning_crop_10bit_60fps_PDDT_4096x576_Max_A_gain_64x
-static u16 dashsc532hswide_custom1_setting[] = {
+static u16 dashscx6000wide_custom1_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -3673,7 +3673,7 @@ static u16 dashsc532hswide_custom1_setting[] = {
 };
 
 //mode 6 :V_14_SUM_V2H2 1920x1080_binning_crop_10bit_120fps_no_pd_Max_A_gain_64x
-static u16 dashsc532hswide_custom2_setting[] = {
+static u16 dashscx6000wide_custom2_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -4418,7 +4418,7 @@ static u16 dashsc532hswide_custom2_setting[] = {
 };
 
 //mode 7 :V_1 8192x6144_full_quad_bayer_10bit_15fps_no_PD_Max_A_gain_16x
-static u16 dashsc532hswide_custom3_setting[] = {
+static u16 dashscx6000wide_custom3_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -5163,7 +5163,7 @@ static u16 dashsc532hswide_custom3_setting[] = {
 };
 
 //mode 8 :V_4 4096x3072_full_crop_quad_bayer_10bit_30fps_PD_DT_2048x768_Max_A_gain_16x
-static u16 dashsc532hswide_custom4_setting[] = {
+static u16 dashscx6000wide_custom4_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -5908,7 +5908,7 @@ static u16 dashsc532hswide_custom4_setting[] = {
 };
 
 //mode 10 :V_3 4096x3072_full_crop_bayer_10bit_30fps_PD_DT_2048x768_Max_A_gain_16x
-static u16 dashsc532hswide_custom6_setting[] = {
+static u16 dashscx6000wide_custom6_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -6653,7 +6653,7 @@ static u16 dashsc532hswide_custom6_setting[] = {
 };
 
 //mode 11 :V_0 8192x6144_full_bayer_10bit_15fps_no_PD_Max_A_gain_16x
-static u16 dashsc532hswide_custom7_setting[] = {
+static u16 dashscx6000wide_custom7_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -7398,7 +7398,7 @@ static u16 dashsc532hswide_custom7_setting[] = {
 };
 
 //mode 12 :V_6_RSS 4096x3072_binning_10bit_24fps_no_PD_Max_A_gain_64x
-static u16 dashsc532hswide_custom8_setting[] = {
+static u16 dashscx6000wide_custom8_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -8143,7 +8143,7 @@ static u16 dashsc532hswide_custom8_setting[] = {
 };
 
 //mode 13 :V_7 4096x3072_full_crop_quad_10bit_24fps_PD_DT_2048x768_Max_A_gain_16x
-static u16 dashsc532hswide_custom9_setting[] = {
+static u16 dashscx6000wide_custom9_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -8888,7 +8888,7 @@ static u16 dashsc532hswide_custom9_setting[] = {
 };
 
 //mode 19 :V_10_RSS_CROP 4096x2560_binning_crop_fake14bit_30fps_PD_DT_4096x640_Max_A_gain_64x
-static u16 dashsc532hswide_custom15_setting[] = {
+static u16 dashscx6000wide_custom15_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -9633,7 +9633,7 @@ static u16 dashsc532hswide_custom15_setting[] = {
 };
 
 //mode 20 :V_12_RSS_CROP 4096x2560_binning_4C2Plus_crop_DCG_combine_MSB_14bit_30fps_PD_DT_4096x640_Max_A_gain_64x
-static u16 dashsc532hswide_custom16_setting[] = {
+static u16 dashscx6000wide_custom16_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -10378,7 +10378,7 @@ static u16 dashsc532hswide_custom16_setting[] = {
 };
 
 //mode 21 :V_11_FULL_CROP 4096x2560_full_crop_bayer_fake14bit_30fps_PD_DT_2048x640_Max_A_gain_16x
-static u16 dashsc532hswide_custom17_setting[] = {
+static u16 dashscx6000wide_custom17_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -11123,7 +11123,7 @@ static u16 dashsc532hswide_custom17_setting[] = {
 };
 
 //mode 23 :V_16_RSS 4096x3072_binning_14bit_30fps_PD_DT_4096x768_Max_A_gain_64x
-static u16 dashsc532hswide_custom19_setting[] = {
+static u16 dashscx6000wide_custom19_setting[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -11867,15 +11867,15 @@ static u16 dashsc532hswide_custom19_setting[] = {
     0x309b,0xf0,
 };
 
-u16 dashsc532hswide_stream_on[] = {
+u16 dashscx6000wide_stream_on[] = {
     0x0100,0x01,
 };
 
-u16 dashsc532hswide_stream_off[] = {
+u16 dashscx6000wide_stream_off[] = {
     0x0100,0x00,
 };
 
-u16 dashsc532hswide_mode_config_step1[] = {
+u16 dashscx6000wide_mode_config_step1[] = {
     0x309d,0xf1,
     0x309b,0xff,
     0x301c,0xff,
@@ -11884,7 +11884,7 @@ u16 dashsc532hswide_mode_config_step1[] = {
     0x30ba,0x24,
 };
 
-u16 dashsc532hswide_mode_config_step2[] = {
+u16 dashscx6000wide_mode_config_step2[] = {
     0x3230,0x00,
     0x3231,0x00,
     0x30ba,0x04,
@@ -11896,13 +11896,13 @@ u16 dashsc532hswide_mode_config_step2[] = {
     0x309b,0xf0,
 };
 
-u16 dashsc532hswide_seamless_switch_step1[] = {
+u16 dashscx6000wide_seamless_switch_step1[] = {
     0x32c8,0x41,
     0x32b7,0x0d,
     0x3800,0x01,
 };
 
-u16 dashsc532hswide_seamless_switch_step2[] = {
+u16 dashscx6000wide_seamless_switch_step2[] = {
     0x3800,0x11,
     0x3800,0x41,
 };

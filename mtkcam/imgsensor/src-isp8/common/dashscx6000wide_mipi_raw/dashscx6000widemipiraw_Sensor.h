@@ -7,7 +7,7 @@
  *
  * Filename:
  * ---------
- *     dashsc532hswidemipiraw_Sensor.h
+ *     dashscx6000widemipiraw_Sensor.h
  *
  * Project:
  * --------
@@ -18,8 +18,8 @@
  *     CMOS sensor header file
  *
  ****************************************************************************/
-#ifndef _DASHSC532HSWIDEMIPI_SENSOR_H
-#define _DASHSC532HSWIDEMIPI_SENSOR_H
+#ifndef _DASHSCX6000WIDEMIPI_SENSOR_H
+#define _DASHSCX6000WIDEMIPI_SENSOR_H
 
 #include <linux/videodev2.h>
 #include <linux/i2c.h>
@@ -36,8 +36,8 @@
 #include "kd_imgsensor_define_v4l2.h"
 #include "kd_imgsensor_errcode.h"
 
-#include "dashsc532hswide_ana_gain_table.h"
-#include "dashsc532hswide_Sensor_setting.h"
+#include "dashscx6000wide_ana_gain_table.h"
+#include "dashscx6000wide_Sensor_setting.h"
 
 #include "adaptor-subdrv-ctrl.h"
 #include "adaptor-i2c.h"

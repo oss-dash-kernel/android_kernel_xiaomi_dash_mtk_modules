@@ -5,7 +5,7 @@
  *
  * Filename:
  * ---------
- *	 dashsc532hswidemipiraw_Sensor.c
+ *	 dashscx6000widemipiraw_Sensor.c
  *
  * Project:
  * --------
@@ -19,25 +19,25 @@
  ****************************************************************************/
 
 
-#include "dashsc532hswidemipiraw_Sensor.h"
+#include "dashscx6000widemipiraw_Sensor.h"
 #define EEPROM_READY 1
 
 #if EEPROM_READY
 static void set_sensor_cali(void *arg);
 #endif
 static u16 get_gain2reg(u32 gain);
-static int dashsc532hswide_set_test_pattern(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static int dashscx6000wide_set_test_pattern(struct subdrv_ctx *ctx, u8 *para, u32 *len);
 static int init_ctx(struct subdrv_ctx *ctx,	struct i2c_client *i2c_client, u8 i2c_write_id);
 static int vsync_notify(struct subdrv_ctx *ctx, unsigned int sof_cnt);
 static void mi_stream(void *arg,bool enable);
-static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32 *len);
-static int dashsc532hswide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static int dashscx6000wide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static int dashscx6000wide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
 static void set_shutter_seamless(struct subdrv_ctx *ctx, u64 shutter);
-static int dashsc532hswide_set_multi_dig_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
-static void dashsc532hswide_set_multi_gain(struct subdrv_ctx *ctx, u32 *gains, u16 exp_cnt);
-static int dashsc532hswide_set_hdr_tri_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
-static int dashsc532hswide_get_sensor_temperature(void *arg);
-static int dashsc532hswide_get_readout_by_scenario(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static int dashscx6000wide_set_multi_dig_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static void dashscx6000wide_set_multi_gain(struct subdrv_ctx *ctx, u32 *gains, u16 exp_cnt);
+static int dashscx6000wide_set_hdr_tri_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len);
+static int dashscx6000wide_get_sensor_temperature(void *arg);
+static int dashscx6000wide_get_readout_by_scenario(struct subdrv_ctx *ctx, u8 *para, u32 *len);
 
 #define SEAMLESS_SWITCH_GROUP_NORMAL_CAP_MODE                 1
 #define SEAMLESS_SWITCH_GROUP_HD_CAP_MODE                     3
@@ -45,10 +45,10 @@ static int dashsc532hswide_get_readout_by_scenario(struct subdrv_ctx *ctx, u8 *p
 #define SEAMLESS_SWITCH_GROUP_VIDEO_NIGHT_MODE                4
 #define SEAMLESS_SWITCH_GROUP_BOKEH                           5
 
-struct SET_SENSOR_AWB_GAIN dashsc532hswide_last_awb_gain = {0, 0, 0, 0};
+struct SET_SENSOR_AWB_GAIN dashscx6000wide_last_awb_gain = {0, 0, 0, 0};
 
 /* STRUCT */
-static struct mtk_sensor_saturation_info dashsc532hs_saturation_info_14bit = {
+static struct mtk_sensor_saturation_info dashscx6000_saturation_info_14bit = {
 	.gain_ratio = 1000,
 	.OB_pedestal = 1024,
 	.saturation_level = 16368,
@@ -56,28 +56,28 @@ static struct mtk_sensor_saturation_info dashsc532hs_saturation_info_14bit = {
 	.ob_bm = 64,
 };
 
-static struct mtk_sensor_saturation_info dashsc532hs_saturation_info_fake14bit = {
+static struct mtk_sensor_saturation_info dashscx6000_saturation_info_fake14bit = {
 	.gain_ratio = 1000,
 	.OB_pedestal = 1024,
 	.saturation_level = 16383,
 	.adc_bit = 10,
 };
 
-//static u32 dashsc532hs_dcg_ratio_table_14bit[] = {16000};
+//static u32 dashscx6000_dcg_ratio_table_14bit[] = {16000};
 
-static struct mtk_sensor_saturation_info dashsc532hs_saturation_info_10bit = {
+static struct mtk_sensor_saturation_info dashscx6000_saturation_info_10bit = {
 	.gain_ratio = 1000,
 	.OB_pedestal = 64,
 	.saturation_level = 1023,
 };
 
 static struct subdrv_feature_control feature_control_list[] = {
-	{SENSOR_FEATURE_SET_TEST_PATTERN, dashsc532hswide_set_test_pattern},
-	{SENSOR_FEATURE_SEAMLESS_SWITCH, dashsc532hswide_seamless_switch},
-	{SENSOR_FEATURE_SET_AWB_GAIN, dashsc532hswide_set_awb_gain},
-	{SENSOR_FEATURE_SET_MULTI_DIG_GAIN, dashsc532hswide_set_multi_dig_gain},
-	{SENSOR_FEATURE_SET_DUAL_GAIN,dashsc532hswide_set_hdr_tri_gain},
-	{SENSOR_FEATURE_GET_READOUT_BY_SCENARIO, dashsc532hswide_get_readout_by_scenario}
+	{SENSOR_FEATURE_SET_TEST_PATTERN, dashscx6000wide_set_test_pattern},
+	{SENSOR_FEATURE_SEAMLESS_SWITCH, dashscx6000wide_seamless_switch},
+	{SENSOR_FEATURE_SET_AWB_GAIN, dashscx6000wide_set_awb_gain},
+	{SENSOR_FEATURE_SET_MULTI_DIG_GAIN, dashscx6000wide_set_multi_dig_gain},
+	{SENSOR_FEATURE_SET_DUAL_GAIN,dashscx6000wide_set_hdr_tri_gain},
+	{SENSOR_FEATURE_GET_READOUT_BY_SCENARIO, dashscx6000wide_get_readout_by_scenario}
 };
 
 static struct eeprom_info_struct eeprom_info[] = {
@@ -545,11 +545,11 @@ static struct mtk_mbus_frame_desc_entry frame_desc_cus19[] = {
 	// version:2025-1209-v1.7.2
 #define PRE_MODE  .frame_desc = frame_desc_prev,\
 		.num_entries = ARRAY_SIZE(frame_desc_prev),\
-		.mode_setting_table = dashsc532hswide_preview_setting,\
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_preview_setting),\
+		.mode_setting_table = dashscx6000wide_preview_setting,\
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_preview_setting),\
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_HD_CAP_MODE,\
-		.seamless_switch_mode_setting_table = dashsc532hswide_preview_setting,\
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_preview_setting),\
+		.seamless_switch_mode_setting_table = dashscx6000wide_preview_setting,\
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_preview_setting),\
 		.hdr_mode = HDR_NONE,\
 		.raw_cnt = 1,\
 		.exp_cnt = 1,\
@@ -609,11 +609,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_vid,
 		.num_entries = ARRAY_SIZE(frame_desc_vid),
-		.mode_setting_table = dashsc532hswide_normal_video_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_normal_video_setting),
+		.mode_setting_table = dashscx6000wide_normal_video_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_normal_video_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_normal_video_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_normal_video_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_normal_video_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_normal_video_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -666,11 +666,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_hs_vid,
 		.num_entries = ARRAY_SIZE(frame_desc_hs_vid),
-		.mode_setting_table = dashsc532hswide_hs_video_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_hs_video_setting),
+		.mode_setting_table = dashscx6000wide_hs_video_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_hs_video_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_hs_video_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_hs_video_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_hs_video_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_hs_video_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -727,11 +727,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus1,
 		.num_entries = ARRAY_SIZE(frame_desc_cus1),
-		.mode_setting_table = dashsc532hswide_custom1_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom1_setting),
+		.mode_setting_table = dashscx6000wide_custom1_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom1_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom1_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom1_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom1_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom1_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -784,11 +784,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus2,
 		.num_entries = ARRAY_SIZE(frame_desc_cus2),
-		.mode_setting_table = dashsc532hswide_custom2_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom2_setting),
+		.mode_setting_table = dashscx6000wide_custom2_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom2_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom2_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom2_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom2_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom2_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -840,11 +840,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus3,
 		.num_entries = ARRAY_SIZE(frame_desc_cus3),
-		.mode_setting_table = dashsc532hswide_custom3_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom3_setting),
+		.mode_setting_table = dashscx6000wide_custom3_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom3_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_NORMAL_CAP_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom3_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom3_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom3_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom3_setting),
 		.hdr_mode = PARAM_UNDEFINED,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -900,11 +900,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus4,
 		.num_entries = ARRAY_SIZE(frame_desc_cus4),
-		.mode_setting_table = dashsc532hswide_custom4_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom4_setting),
+		.mode_setting_table = dashscx6000wide_custom4_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom4_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_NORMAL_CAP_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom4_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom4_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom4_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom4_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -964,11 +964,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus6,
 		.num_entries = ARRAY_SIZE(frame_desc_cus6),
-		.mode_setting_table = dashsc532hswide_custom6_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom6_setting),
+		.mode_setting_table = dashscx6000wide_custom6_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom6_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_NORMAL_CAP_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom6_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom6_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom6_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom6_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1024,11 +1024,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus7,
 		.num_entries = ARRAY_SIZE(frame_desc_cus7),
-		.mode_setting_table = dashsc532hswide_custom7_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom7_setting),
+		.mode_setting_table = dashscx6000wide_custom7_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom7_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_HD_CAP_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom7_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom7_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom7_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom7_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1084,11 +1084,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus8,
 		.num_entries = ARRAY_SIZE(frame_desc_cus8),
-		.mode_setting_table = dashsc532hswide_custom8_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom8_setting),
+		.mode_setting_table = dashscx6000wide_custom8_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom8_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom8_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom8_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom8_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom8_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1139,11 +1139,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus9,
 		.num_entries = ARRAY_SIZE(frame_desc_cus9),
-		.mode_setting_table = dashsc532hswide_custom9_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom9_setting),
+		.mode_setting_table = dashscx6000wide_custom9_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom9_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_BOKEH,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom9_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom9_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom9_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom9_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1199,11 +1199,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus8,
 		.num_entries = ARRAY_SIZE(frame_desc_cus8),
-		.mode_setting_table = dashsc532hswide_custom8_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom8_setting),
+		.mode_setting_table = dashscx6000wide_custom8_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom8_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_BOKEH,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom8_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom8_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom8_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom8_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1254,11 +1254,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_prev,
 		.num_entries = ARRAY_SIZE(frame_desc_prev),
-		.mode_setting_table = dashsc532hswide_preview_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_preview_setting),
+		.mode_setting_table = dashscx6000wide_preview_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_preview_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_NORMAL_CAP_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_preview_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_preview_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_preview_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_preview_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1317,11 +1317,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus16,
 		.num_entries = ARRAY_SIZE(frame_desc_cus16),
-		.mode_setting_table = dashsc532hswide_custom16_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom16_setting),
+		.mode_setting_table = dashscx6000wide_custom16_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom16_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom16_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom16_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom16_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom16_setting),
 		.hdr_mode = HDR_RAW_DCG_COMPOSE,
 		.raw_cnt = 1,
 		.exp_cnt = 2,
@@ -1377,7 +1377,7 @@ static struct subdrv_mode_struct mode_struct[] = {
 		.fine_integ_line = 0,
 		.delay_frame = 2,
 		.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW14_B,
-		.saturation_info = &dashsc532hs_saturation_info_14bit,
+		.saturation_info = &dashscx6000_saturation_info_14bit,
 	},
 	// custom15 mode 19: video fake 14bit 16:10 
 	// V_10_RSS_CROP 4096x2560_binning_crop_fake14bit_30fps_PD_DT_4096x640_Max_A_gain_64x
@@ -1388,11 +1388,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus15,
 		.num_entries = ARRAY_SIZE(frame_desc_cus15),
-		.mode_setting_table = dashsc532hswide_custom15_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom15_setting),
+		.mode_setting_table = dashscx6000wide_custom15_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom15_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_VIDEO_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom15_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom15_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom15_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom15_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1436,7 +1436,7 @@ static struct subdrv_mode_struct mode_struct[] = {
 		.fine_integ_line = 0,
 		.delay_frame = 2,
 		.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW14_B,
-		.saturation_info = &dashsc532hs_saturation_info_fake14bit,
+		.saturation_info = &dashscx6000_saturation_info_fake14bit,
 	},
 	// custom16 mode 20 14bit video
 	// V_12_RSS_CROP 4096x2560_binning_4C2Plus_crop_DCG_combine_MSB_14bit_30fps_PD_DT_4096x640_Max_A_gain_64x
@@ -1447,11 +1447,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus16,
 		.num_entries = ARRAY_SIZE(frame_desc_cus16),
-		.mode_setting_table = dashsc532hswide_custom16_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom16_setting),
+		.mode_setting_table = dashscx6000wide_custom16_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom16_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_VIDEO_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom16_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom16_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom16_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom16_setting),
 		.hdr_mode = HDR_RAW_DCG_COMPOSE,
 		.raw_cnt = 1,
 		.exp_cnt = 2,
@@ -1507,7 +1507,7 @@ static struct subdrv_mode_struct mode_struct[] = {
 		.fine_integ_line = 0,
 		.delay_frame = 2,
 		.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW14_B,
-		.saturation_info = &dashsc532hs_saturation_info_14bit,
+		.saturation_info = &dashscx6000_saturation_info_14bit,
 	},
 	// custom17 mode 21 : full size crop bayer 16:10 fake14 bit
 	// V_11_FULL_CROP 4096x2560_full_crop_bayer_fake14bit_30fps_PD_DT_2048x640_Max_A_gain_16x
@@ -1518,11 +1518,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus17,
 		.num_entries = ARRAY_SIZE(frame_desc_cus17),
-		.mode_setting_table = dashsc532hswide_custom17_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom17_setting),
+		.mode_setting_table = dashscx6000wide_custom17_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom17_setting),
 		.seamless_switch_group = SEAMLESS_SWITCH_GROUP_VIDEO_MODE,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom17_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom17_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom17_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom17_setting),
 		.hdr_mode = PARAM_UNDEFINED,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1568,7 +1568,7 @@ static struct subdrv_mode_struct mode_struct[] = {
 		.fine_integ_line = 0,
 		.delay_frame = 2,
 		.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW14_B,
-		.saturation_info = &dashsc532hs_saturation_info_fake14bit,
+		.saturation_info = &dashscx6000_saturation_info_fake14bit,
 		.awb_enabled = true,
 	},
 	// custom18 mode 22: unused
@@ -1584,11 +1584,11 @@ static struct subdrv_mode_struct mode_struct[] = {
 	{
 		.frame_desc = frame_desc_cus19,
 		.num_entries = ARRAY_SIZE(frame_desc_cus19),
-		.mode_setting_table = dashsc532hswide_custom19_setting,
-		.mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom19_setting),
+		.mode_setting_table = dashscx6000wide_custom19_setting,
+		.mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom19_setting),
 		.seamless_switch_group = PARAM_UNDEFINED,
-		.seamless_switch_mode_setting_table = dashsc532hswide_custom19_setting,
-		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashsc532hswide_custom19_setting),
+		.seamless_switch_mode_setting_table = dashscx6000wide_custom19_setting,
+		.seamless_switch_mode_setting_len = ARRAY_SIZE(dashscx6000wide_custom19_setting),
 		.hdr_mode = HDR_NONE,
 		.raw_cnt = 1,
 		.exp_cnt = 1,
@@ -1630,12 +1630,12 @@ static struct subdrv_mode_struct mode_struct[] = {
 		.fine_integ_line = 0,
 		.delay_frame = 2,
 		.sensor_output_dataformat = SENSOR_OUTPUT_FORMAT_RAW14_B,
-		.saturation_info = &dashsc532hs_saturation_info_fake14bit,
+		.saturation_info = &dashscx6000_saturation_info_fake14bit,
 	},
 };
 
 static struct subdrv_static_ctx static_ctx = {
-	.sensor_id = DASHSC532HSWIDE_SENSOR_ID,
+	.sensor_id = DASHSCX6000WIDE_SENSOR_ID,
 	.reg_addr_sensor_id = {0x3107, 0x3108},
 	.i2c_addr_table = {0x20,0xFF},
 	.i2c_burst_write_support = TRUE,
@@ -1661,15 +1661,15 @@ static struct subdrv_static_ctx static_ctx = {
 	.ana_gain_max = BASEGAIN * 64,
 	.ana_gain_type = 0,
 	.ana_gain_step = 1,
-	.ana_gain_table = dashsc532hswide_ana_gain_table,
-	.ana_gain_table_size = sizeof(dashsc532hswide_ana_gain_table),
+	.ana_gain_table = dashscx6000wide_ana_gain_table,
+	.ana_gain_table_size = sizeof(dashscx6000wide_ana_gain_table),
 	.tuning_iso_base = 50,
 	.exposure_def = 0x3D0,
 	.exposure_min = 4,
 	.exposure_max = 0xFFFFF0 - 16,
 	.exposure_step = 1,
 	.exposure_margin = 16,
-	.saturation_info = &dashsc532hs_saturation_info_10bit,
+	.saturation_info = &dashscx6000_saturation_info_10bit,
 
 	.frame_length_max = 0xFFFFF0,
 	.ae_effective_frame = 3,
@@ -1713,15 +1713,15 @@ static struct subdrv_static_ctx static_ctx = {
 	.reg_addr_frame_length = {0x326d, 0x320e, 0x320f},
 	.reg_addr_temp_en = PARAM_UNDEFINED,
 	.reg_addr_temp_read = PARAM_UNDEFINED,
-	.g_temp = dashsc532hswide_get_sensor_temperature,
+	.g_temp = dashscx6000wide_get_sensor_temperature,
 	// .reg_addr_auto_extend = 0x0350,
 	.reg_addr_frame_count = 0x4869,
 	// .reg_addr_fast_mode = 0x3010,
 
 	// .mi_disable_set_dummy = 1, // disable set dummy
 	// .mi_evaluate_frame_rate_by_scenario = evaluate_frame_rate_by_scenario,
-	.init_setting_table = dashsc532hswide_init_setting,
-	.init_setting_len = ARRAY_SIZE(dashsc532hswide_init_setting),
+	.init_setting_table = dashscx6000wide_init_setting,
+	.init_setting_len = ARRAY_SIZE(dashscx6000wide_init_setting),
 	.mode = mode_struct,
 	.sensor_mode_num = ARRAY_SIZE(mode_struct),
 	.list = feature_control_list,
@@ -1763,9 +1763,9 @@ static struct subdrv_pw_seq_entry pw_seq[] = {
 };
 
 
-const struct subdrv_entry dashsc532hswide_mipi_raw_entry = {
-    .name = "dashsc532hswide_mipi_raw",
-    .id = DASHSC532HSWIDE_SENSOR_ID,
+const struct subdrv_entry dashscx6000wide_mipi_raw_entry = {
+    .name = "dashscx6000wide_mipi_raw",
+    .id = DASHSCX6000WIDE_SENSOR_ID,
     .pw_seq = pw_seq,
     .pw_seq_cnt = ARRAY_SIZE(pw_seq),
     .ops = &ops,
@@ -1842,11 +1842,11 @@ static void mi_stream(void *arg,bool enable)
 	u32 len = 0;
 	DRV_LOG_MUST(ctx, "Enter %s enable = %d \n", __FUNCTION__,enable);
 	if(enable){
-		dashsc532hswide_set_awb_gain(ctx, (u8 *)&dashsc532hswide_last_awb_gain, &len);
-		i2c_table_write(ctx, dashsc532hswide_stream_on, ARRAY_SIZE(dashsc532hswide_stream_on));
+		dashscx6000wide_set_awb_gain(ctx, (u8 *)&dashscx6000wide_last_awb_gain, &len);
+		i2c_table_write(ctx, dashscx6000wide_stream_on, ARRAY_SIZE(dashscx6000wide_stream_on));
 		mdelay(5);
 	}else{
-		i2c_table_write(ctx, dashsc532hswide_stream_off, ARRAY_SIZE(dashsc532hswide_stream_off));
+		i2c_table_write(ctx, dashscx6000wide_stream_off, ARRAY_SIZE(dashscx6000wide_stream_off));
 	}
 }
 
@@ -1873,7 +1873,7 @@ static u16 get_gain2reg(u32 gain)
 	return gain * 128 / BASEGAIN;
 }
 
-static int dashsc532hswide_set_test_pattern(struct subdrv_ctx *ctx, u8 *para, u32 *len)
+static int dashscx6000wide_set_test_pattern(struct subdrv_ctx *ctx, u8 *para, u32 *len)
 {
 	u32 mode = *((u32 *)para);
 
@@ -1982,7 +1982,7 @@ static int get_seamless_setting(struct subdrv_ctx *ctx, enum SENSOR_SCENARIO_ID_
 	return ret_index;
 }
 
-static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32 *len)
+static int dashscx6000wide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32 *len)
 {
 	enum SENSOR_SCENARIO_ID_ENUM scenario_id;
 	enum IMGSENSOR_HDR_MODE_ENUM src_hdr;
@@ -2048,18 +2048,18 @@ static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32
 
 	update_mode_info(ctx, scenario_id);
 
-	ixc_table_write(ctx, dashsc532hswide_seamless_switch_step1,
-		ARRAY_SIZE(dashsc532hswide_seamless_switch_step1));
+	ixc_table_write(ctx, dashscx6000wide_seamless_switch_step1,
+		ARRAY_SIZE(dashscx6000wide_seamless_switch_step1));
 
-	dashsc532hswide_set_awb_gain(ctx, (u8 *)&dashsc532hswide_last_awb_gain, &retLen);
+	dashscx6000wide_set_awb_gain(ctx, (u8 *)&dashscx6000wide_last_awb_gain, &retLen);
 
-	ixc_table_write(ctx, dashsc532hswide_mode_config_step1,
-		ARRAY_SIZE(dashsc532hswide_mode_config_step1));
+	ixc_table_write(ctx, dashscx6000wide_mode_config_step1,
+		ARRAY_SIZE(dashscx6000wide_mode_config_step1));
 
 	ixc_table_write(ctx, setting_seamless, seamless_write_size);
 
-	ixc_table_write(ctx, dashsc532hswide_mode_config_step2,
-		ARRAY_SIZE(dashsc532hswide_mode_config_step2));
+	ixc_table_write(ctx, dashscx6000wide_mode_config_step2,
+		ARRAY_SIZE(dashscx6000wide_mode_config_step2));
 
 	if (ae_ctrl) {
 		switch (ctx->s_ctx.mode[scenario_id].hdr_mode) {
@@ -2071,7 +2071,7 @@ static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32
 			set_shutter_seamless(ctx, ae_ctrl->exposure.le_exposure);
 			if (ctx->s_ctx.mode[scenario_id].dcg_info.dcg_gain_mode
 				== IMGSENSOR_DCG_DIRECT_MODE)
-				dashsc532hswide_set_multi_gain(ctx, (u32 *)&ae_ctrl->gain, exp_cnt);
+				dashscx6000wide_set_multi_gain(ctx, (u32 *)&ae_ctrl->gain, exp_cnt);
 			else
 				set_gain(ctx, ae_ctrl->gain.le_gain);
 			break;
@@ -2087,8 +2087,8 @@ static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32
 		ctx->s_ctx.mode[scenario_id].pclk,
 		ctx->s_ctx.mode[scenario_id].exposure_margin);
 
-	i2c_table_write(ctx, dashsc532hswide_seamless_switch_step2,
-		ARRAY_SIZE(dashsc532hswide_seamless_switch_step2));
+	i2c_table_write(ctx, dashscx6000wide_seamless_switch_step2,
+		ARRAY_SIZE(dashscx6000wide_seamless_switch_step2));
 
 	ctx->fast_mode_on = TRUE;
 	ctx->ref_sof_cnt = ctx->sof_cnt;
@@ -2097,7 +2097,7 @@ static int dashsc532hswide_seamless_switch(struct subdrv_ctx *ctx, u8 *para, u32
 	return ERROR_NONE;
 }
 
-static int dashsc532hswide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
+static int dashscx6000wide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
 {
 	u64 *feature_data = (u64 *) para;
 	struct SET_SENSOR_AWB_GAIN *awb_gain = (struct SET_SENSOR_AWB_GAIN *)feature_data;
@@ -2111,7 +2111,7 @@ static int dashsc532hswide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *l
 	UINT32 gb_gain_int = 0;
 	UINT32 gain_base = 0x100;
 
-	dashsc532hswide_last_awb_gain = *awb_gain;
+	dashscx6000wide_last_awb_gain = *awb_gain;
 
 	if (r_Gain == 0 || gr_Gain == 0 || gb_Gain == 0 || b_Gain == 0) {
 		DRV_LOG(ctx, "error awb gain [r/gr/gb/b]: 0x%x 0x%x 0x%x 0x%x\n",
@@ -2146,7 +2146,7 @@ static int dashsc532hswide_set_awb_gain(struct subdrv_ctx *ctx, u8 *para, u32 *l
 	return ERROR_NONE;
 }
 
-static int dashsc532hswide_set_multi_dig_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
+static int dashscx6000wide_set_multi_dig_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
 {
 	int i = 0;
 	u16 rg_gains[IMGSENSOR_STAGGER_EXPOSURE_CNT] = {0};
@@ -2238,7 +2238,7 @@ static int dashsc532hswide_set_multi_dig_gain(struct subdrv_ctx *ctx, u8 *para, 
 	return 0;
 }
 
-static int dashsc532hswide_set_hdr_tri_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
+static int dashscx6000wide_set_hdr_tri_gain(struct subdrv_ctx *ctx, u8 *para, u32 *len)
 {
 	int i = 0;
 	int exp_cnt = 2;
@@ -2253,11 +2253,11 @@ static int dashsc532hswide_set_hdr_tri_gain(struct subdrv_ctx *ctx, u8 *para, u3
 		set_multi_gain_in_lut(ctx, values, exp_cnt);
 		return 0;
 	}
-	dashsc532hswide_set_multi_gain(ctx,values, exp_cnt);
+	dashscx6000wide_set_multi_gain(ctx,values, exp_cnt);
 	return 0;
 }
 
-static void dashsc532hswide_set_multi_gain(struct subdrv_ctx *ctx, u32 *gains, u16 exp_cnt)
+static void dashscx6000wide_set_multi_gain(struct subdrv_ctx *ctx, u32 *gains, u16 exp_cnt)
 {
 	int i = 0;
 	u16 rg_gains[3] = {0};
@@ -2325,7 +2325,7 @@ static void dashsc532hswide_set_multi_gain(struct subdrv_ctx *ctx, u32 *gains, u
 	/* group hold end */
 }
 
-static int dashsc532hswide_get_sensor_temperature(void *arg){
+static int dashscx6000wide_get_sensor_temperature(void *arg){
 	struct subdrv_ctx *ctx = (struct subdrv_ctx *)arg;
 	u16 temperature_enable = 0;
 	u8 temperature = 0, temperature_last = 0;
@@ -2348,7 +2348,7 @@ static int dashsc532hswide_get_sensor_temperature(void *arg){
 
 	return temperature;
 }
-static int dashsc532hswide_get_readout_by_scenario(struct subdrv_ctx *ctx, u8 *para, u32 *len){
+static int dashscx6000wide_get_readout_by_scenario(struct subdrv_ctx *ctx, u8 *para, u32 *len){
 	u32 ratio = 1;
 	u64 *feature_data = (u64 *) para;
 	enum SENSOR_SCENARIO_ID_ENUM scenario_id = (enum SENSOR_SCENARIO_ID_ENUM)*feature_data;

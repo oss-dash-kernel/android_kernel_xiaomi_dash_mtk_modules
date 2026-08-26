@@ -6,7 +6,7 @@
  *
  * Filename:
  * ---------
- *	 dashsc532hswide_ana_gain_table.h
+ *	 dashscx6000wide_ana_gain_table.h
  *
  * Project:
  * --------
@@ -15,12 +15,12 @@
  *	 Analog Gain Table
  *
  ****************************************************************************/
-#ifndef __DASHSC532HSWIDE_ANA_GAIN_TABLE_H__
-#define __DASHSC532HSWIDE_ANA_GAIN_TABLE_H__
+#ifndef __DASHSCX6000WIDE_ANA_GAIN_TABLE_H__
+#define __DASHSCX6000WIDE_ANA_GAIN_TABLE_H__
 
 #include "kd_camera_typedef.h"
 
-static kal_uint32 dashsc532hswide_ana_gain_table[] = {
+static kal_uint32 dashscx6000wide_ana_gain_table[] = {
 	1024,//TBD ASK FAE
 	1032,
 	1040,
