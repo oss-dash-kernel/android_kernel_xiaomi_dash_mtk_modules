@@ -405,7 +405,10 @@ void statsParseICMPInfo(void *pvPacket, uint8_t *pucIcmp, uint8_t eventType,
 	u2IcmpSeq = NTOHS(prIcmpEcho->u2SequenceNumber);
 
 	if (eventType == EVENT_RX) {
-		GLUE_SET_INDEPENDENT_PKT(pvPacket, TRUE);
+		/*
+		 * Keep RX ICMP subject to BA stale/repeat rejection. Marking it
+		 * independent lets a fall-behind copy bypass the normal drop path.
+		 */
 		GLUE_SET_PKT_FLAG(pvPacket, ENUM_PKT_ICMP);
 		DBGLOG_LIMITED(RX, INFO,
 			       "<RX> ICMP: IPID[0x%04x] Type %u, Id 0x%04x, Seq BE 0x%04x, MAC:"
