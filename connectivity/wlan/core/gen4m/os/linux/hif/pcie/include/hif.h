@@ -388,7 +388,8 @@ struct GL_HIF_INFO {
 #if (CFG_MTK_WIFI_PCIE_CONFIG_SPACE_ACCESS_DBG == 1)
 	u_int8_t fgEnablePcieCfgDump;
 #endif /* CFG_MTK_WIFI_PCIE_CONFIG_SPACE_ACCESS_DBG */
-	u_int8_t fgIsDebugSopOnGoing;
+	/* GLUE_*_REF_CNT accesses this field as a 32-bit atomic_t. */
+	uint32_t fgIsDebugSopOnGoing;
 
 	u_int8_t fgIsTriggerRxTimeout;
 };
