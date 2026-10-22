@@ -4,3 +4,4 @@ obj-m += plat/v050/
 obj-m += plat/v051/
 obj-m += plat/v060/
 obj-m += plat/v061/
+obj-m += plat/v062/
