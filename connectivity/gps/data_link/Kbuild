@@ -1,7 +1,8 @@
-obj-m += plat/v010/
-obj-m += plat/v030/
-obj-m += plat/v050/
-obj-m += plat/v051/
-obj-m += plat/v060/
-obj-m += plat/v061/
+# The device loads the gps_drv_dl_v062 module, it is the platform of the
+# dash. Only that one is built.
+#
+# The platforms write their objects into the same directory, they take it
+# from two directories up, so building more than one of them at the same
+# time has two rules writing the same file and the build fails with a
+# missing object.
 obj-m += plat/v062/
