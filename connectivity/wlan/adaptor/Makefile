@@ -20,16 +20,16 @@ endif
 endif
 compile_commands.json:
 ifdef WLAN_BUILD_COMMON
-        $(MAKE) -C $(KERNEL_SRC) M=$(M) compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)"
+	$(MAKE) -C $(KERNEL_SRC) M=$(M) compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)"
 else
 
 ifneq ($(wildcard $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/common/Module.symvers)) ,)
-        $(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac1x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=1_0 MODULE_NAME=wmt_chrdev_wifi
+	$(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac1x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=1_0 MODULE_NAME=wmt_chrdev_wifi
 endif
 
 ifneq ($(wildcard $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/conninfra/Module.symvers)) ,)
-        $(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac2x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=2_0 MODULE_NAME=wmt_chrdev_wifi_connac2
-        $(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac3x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=3_0 MODULE_NAME=wmt_chrdev_wifi_connac3
+	$(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac2x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=2_0 MODULE_NAME=wmt_chrdev_wifi_connac2
+	$(MAKE) -C $(KERNEL_SRC) M=$(M)/build/connac3x compile_commands.json $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)" CONNAC_VER=3_0 MODULE_NAME=wmt_chrdev_wifi_connac3
 endif
 
 endif
